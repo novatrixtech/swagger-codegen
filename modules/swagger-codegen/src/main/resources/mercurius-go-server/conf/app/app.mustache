@@ -1,0 +1,59 @@
+package app
+
+import (
+    mcache "github.com/go-macaron/cache"
+    "github.com/go-macaron/gzip"
+    "github.com/go-macaron/i18n"
+    "github.com/go-macaron/jade"
+    "github.com/go-macaron/session"
+    "{{#externalDocs}}{{externalDocs.url}}{{/externalDocs}}/conf"
+    "{{#externalDocs}}{{externalDocs.url}}{{/externalDocs}}/lib/cache"
+    "{{#externalDocs}}{{externalDocs.url}}{{/externalDocs}}/lib/context"
+    "{{#externalDocs}}{{externalDocs.url}}{{/externalDocs}}/lib/template"
+    "gopkg.in/macaron.v1"
+)
+
+func SetupMiddlewares(app *macaron.Macaron) {
+    app.Use(macaron.Logger())
+    app.Use(macaron.Recovery())
+    app.Use(gzip.Gziper())
+    app.Use(macaron.Static("public"))
+    app.Use(i18n.I18n(i18n.Options{
+    Directory: "locale",
+    Langs:     []string{"pt-BR", "en-US"},
+    Names:     []string{"Português do Brasil", "American English"},
+    }))
+    app.Use(jade.Renderer(jade.Options{
+    Directory: "public/templates",
+    Funcs:     template.FuncMaps(),
+    }))
+    app.Use(macaron.Renderer())
+    app.Use(mcache.Cacher(
+    cache.Option(conf.Cfg.Section("").Key("cache_adapter").Value()),
+    ))
+    app.Use(session.Sessioner())
+    app.Use(context.Contexter())
+}
+
+func SetupRoutes(app *macaron.Macaron) {
+    {{#apiInfo}}{{#apis}}{{#operations}}{{#operation}}
+        route(app, "{{httpMethod}}", "{{basePathWithoutHost}}{{path}}", handler.{{nickname}})
+    {{/operation}}{{/operations}}{{/apis}}{{/apiInfo}}
+}
+
+func route(app *macaron.Macaron, method, path string, handler ...macaron.Handler) {
+    switch method {
+        case "GET":
+        app.Get(path, handler...)
+        case "POST":
+        app.Post(path, handler...)
+        case "PUT":
+        app.Put(path, handler...)
+        case "DELETE":
+        app.Delete(path, handler...)
+        case "HEAD":
+        app.Head(path, handler...)
+        case "OPTIONS":
+        app.Options(path, handler...)
+    }
+}

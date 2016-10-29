@@ -1,0 +1,12 @@
+package {{packageName}}
+{{#models}}{{#imports}}
+import ({{/imports}}{{#imports}}
+    "{{import}}"{{/imports}}{{#imports}}
+)
+{{/imports}}{{#model}}
+type {{classname}} struct {
+{{#vars}}
+    {{name}} {{{datatype}}} `json:"{{baseName}},omitempty" db:"{{baseName}}"`
+{{/vars}}
+}
+{{/model}}{{/models}}

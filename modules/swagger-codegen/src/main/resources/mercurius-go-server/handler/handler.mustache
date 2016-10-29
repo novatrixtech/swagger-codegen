@@ -1,0 +1,13 @@
+package handler
+
+{{#operations}}
+import (
+    "{{#externalDocs}}{{externalDocs.url}}{{/externalDocs}}/lib/context"
+)
+
+{{#operation}}
+func {{nickname}}(ctx *context.Context) {
+}
+
+{{/operation}}
+{{/operations}}

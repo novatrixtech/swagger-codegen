@@ -1,13 +1,13 @@
 package handler
 
-{{#operations}}
 import (
-    "{{#externalDocs}}{{externalDocs.url}}{{/externalDocs}}/lib/context"
+"{{#externalDocs}}{{externalDocs.url}}{{/externalDocs}}/lib/context"
 )
 
-{{#operation}}
-func {{nickname}}(ctx *context.Context) {
-}
+{{#operations}}
+    {{#operation}}
+        func {{nickname}}(ctx *context.Context) {
+        }
 
-{{/operation}}
+    {{/operation}}
 {{/operations}}

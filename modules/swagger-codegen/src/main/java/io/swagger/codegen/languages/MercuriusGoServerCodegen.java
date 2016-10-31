@@ -283,4 +283,8 @@ public class MercuriusGoServerCodegen extends DefaultCodegen implements CodegenC
         return input.replace("*/", "*_/").replace("/*", "/_*");
     }
 
+    @Override
+    public String toVarName(String name) {
+        return camelize(name);
+    }
 }

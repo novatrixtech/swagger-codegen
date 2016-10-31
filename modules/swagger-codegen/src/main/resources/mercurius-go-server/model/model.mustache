@@ -1,9 +1,5 @@
-package {{packageName}}
-{{#models}}{{#imports}}
-import ({{/imports}}{{#imports}}
-    "{{import}}"{{/imports}}{{#imports}}
-)
-{{/imports}}{{#model}}
+package model
+{{#models}}{{#model}}
 type {{classname}} struct {
 {{#vars}}
     {{name}} {{{datatype}}} `json:"{{baseName}},omitempty" db:"{{baseName}}"`

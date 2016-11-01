@@ -1,11 +1,12 @@
 package io.swagger.codegen.languages;
 
 import io.swagger.codegen.*;
+import io.swagger.models.Swagger;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
+import java.io.*;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -286,5 +287,47 @@ public class MercuriusGoServerCodegen extends DefaultCodegen implements CodegenC
     @Override
     public String toVarName(String name) {
         return camelize(name);
+    }
+
+    @Override
+    public void processSwagger(Swagger swagger) {
+        // rewrite handlers file
+        String url = swagger.getExternalDocs().getUrl();
+        url = url + "/lib/context";
+        BufferedReader br = null;
+        BufferedWriter bw = null;
+
+        try {
+            String sCurrentLine;
+
+            br = new BufferedReader(new FileReader(outputFolder + "/handler/default.go"));
+            bw = new BufferedWriter(new FileWriter(outputFolder + "/handler/api.go"));
+            boolean changeTime = false;
+            while ((sCurrentLine = br.readLine()) != null) {
+                if (changeTime) {
+                    sCurrentLine = "\"" + url + "\"";
+                    changeTime = false;
+                }
+                bw.write(sCurrentLine + "\n");
+                if (sCurrentLine.contains("import (")) {
+                    changeTime = true;
+                }
+            }
+            File file = new File(outputFolder + "/handler/default.go");
+            boolean delete = file.delete();
+            if (delete) {
+                System.out.println("delete old handler file");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (br != null)br.close();
+                if (bw != null)bw.close();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+        super.processSwagger(swagger);
     }
 }

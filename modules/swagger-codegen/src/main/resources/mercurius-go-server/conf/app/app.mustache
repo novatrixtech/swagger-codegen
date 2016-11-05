@@ -56,5 +56,7 @@ func route(app *macaron.Macaron, method, path string, handler ...macaron.Handler
         app.Head(path, handler...)
         case "OPTIONS":
         app.Options(path, handler...)
+        case "PATCH":
+        app.Patch(path, handler...)
     }
 }

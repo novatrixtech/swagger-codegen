@@ -133,8 +133,7 @@ public class MercuriusGoServerCodegen extends DefaultCodegen implements CodegenC
         supportingFiles.add(new SupportingFile("conf/app/app.mustache", "conf/app", "app.go"));
         supportingFiles.add(new SupportingFile("conf/app.ini", "conf", "app.ini"));
         supportingFiles.add(new SupportingFile("conf/env.go", "conf", "env.go"));
-        supportingFiles.add(new SupportingFile("conf/mysql.go", "conf", "mysql.go"));
-        supportingFiles.add(new SupportingFile("conf/postgresql.go", "conf", "postgresql.go"));
+        supportingFiles.add(new SupportingFile("conf/dbconfig.go", "conf", "dbconfig.go"));
 
         // locale files
         supportingFiles.add(new SupportingFile("locale/locale_en-US.ini", "locale", "locale_en-US.ini"));

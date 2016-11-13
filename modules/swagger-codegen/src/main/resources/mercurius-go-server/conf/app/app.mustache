@@ -43,26 +43,9 @@ func SetupMiddlewares(app *macaron.Macaron) {
 }
 
 func SetupRoutes(app *macaron.Macaron) {
+    app.Group("{{basePathWithoutHost}}", func() {
     {{#apiInfo}}{{#apis}}{{#operations}}{{#operation}}
-        route(app, "{{httpMethod}}", "{{basePathWithoutHost}}{{path}}", handler.{{nickname}})
+            app.{{httpMethod}}("{{path}}", handler.{{nickname}})
     {{/operation}}{{/operations}}{{/apis}}{{/apiInfo}}
-}
-
-func route(app *macaron.Macaron, method, path string, handler ...macaron.Handler) {
-    switch method {
-        case "GET":
-        app.Get(path, handler...)
-        case "POST":
-        app.Post(path, handler...)
-        case "PUT":
-        app.Put(path, handler...)
-        case "DELETE":
-        app.Delete(path, handler...)
-        case "HEAD":
-        app.Head(path, handler...)
-        case "OPTIONS":
-        app.Options(path, handler...)
-        case "PATCH":
-        app.Patch(path, handler...)
-    }
+    })
 }

@@ -294,6 +294,48 @@ public class MercuriusGoServerCodegen extends DefaultCodegen implements CodegenC
     @Override
     public void processSwagger(Swagger swagger) {
         // rewrite handlers file
+        rewriteHandlersFile(swagger);
+        rewriteRoutes();
+        super.processSwagger(swagger);
+    }
+
+    private void rewriteRoutes() {
+        BufferedWriter bw = null;
+        BufferedReader br = null;
+        try {
+            String sCurrentLine;
+            File file = new File(outputFolder + "/conf/app/app.go");
+            br = new BufferedReader(new FileReader(file));
+            File generated = new File(outputFolder + "/conf/app/app.go.generated");
+            bw = new BufferedWriter(new FileWriter(generated));
+
+            while ((sCurrentLine = br.readLine()) != null) {
+                sCurrentLine = sCurrentLine.replace("GET", "Get");
+                sCurrentLine = sCurrentLine.replace("POST", "Post");
+                sCurrentLine = sCurrentLine.replace("PUT", "Put");
+                sCurrentLine = sCurrentLine.replace("DELETE", "Delete");
+                sCurrentLine = sCurrentLine.replace("HEAD", "Head");
+                sCurrentLine = sCurrentLine.replace("OPTIONS", "Options");
+                sCurrentLine = sCurrentLine.replace("PATCH", "Patch");
+                sCurrentLine = sCurrentLine.replace("/{", "/:");
+                sCurrentLine = sCurrentLine.replace("}/", "/");
+                sCurrentLine = sCurrentLine.replace("}\"", "\"");
+                bw.write(sCurrentLine + "\n");
+            }
+            generated.renameTo(file);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (br != null)br.close();
+                if (bw != null)bw.close();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+
+    private void rewriteHandlersFile(Swagger swagger) {
         String url = swagger.getExternalDocs().getUrl();
         url = url + "/lib/context";
         File dir = new File(outputFolder + "/handler");
@@ -332,6 +374,5 @@ public class MercuriusGoServerCodegen extends DefaultCodegen implements CodegenC
                 }
             }
         }
-        super.processSwagger(swagger);
     }
 }

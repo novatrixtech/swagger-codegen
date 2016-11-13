@@ -155,6 +155,9 @@ public class MercuriusGoServerCodegen extends DefaultCodegen implements CodegenC
         supportingFiles.add(new SupportingFile("lib/context/context.go", "lib/context", "context.go"));
         supportingFiles.add(new SupportingFile("lib/context/form.go", "lib/context", "form.go"));
         supportingFiles.add(new SupportingFile("lib/context/login.go", "lib/context", "login.go"));
+
+        // healthcheck
+        supportingFiles.add(new SupportingFile("handler/healthcheck.go", "handler", "healthcheck.go"));
     }
 
     /**

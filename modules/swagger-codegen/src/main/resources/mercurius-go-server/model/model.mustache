@@ -11,6 +11,6 @@ type {{classname}} struct {
 }
 
 func (o *{{classname}}) String() string {
-    return fmt.Sprintf("{ {{#vars}} %+v {{/vars}} }"{{#vars}},o.{{name}}{{/vars}})
+    return fmt.Sprintf("{ {{#vars}} %v {{/vars}} }"{{#vars}},o.{{name}}{{/vars}})
 }
 {{/model}}{{/models}}

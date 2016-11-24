@@ -1,8 +1,16 @@
 package model
-{{#models}}{{#model}}
+{{#models}}
+import (
+    "fmt"
+)
+{{#model}}
 type {{classname}} struct {
 {{#vars}}
     {{name}} {{{datatype}}} `json:"{{baseName}},omitempty" db:"{{baseName}}"`
 {{/vars}}
+}
+
+func (o *{{classname}}) String() string {
+    return fmt.Sprintf("{{#vars}} %v{{/vars}}"{{#vars}},o.{{name}}{{/vars}})
 }
 {{/model}}{{/models}}

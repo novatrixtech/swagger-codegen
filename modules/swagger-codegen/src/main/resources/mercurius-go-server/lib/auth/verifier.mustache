@@ -48,8 +48,13 @@ func LoginRequired(ctx *context.Context) {
 func LoginRequiredApi(ctx *context.Context) {
     header := ctx.Req.Header.Get("Authorization")
     if header != "" {
-        value := strings.Split(header, " ")[1]
-        token, err := jwt.ParseWithClaims(value, &Claims{}, parse)
+        splitted := strings.Split(header, " ")
+		if len(splitted) < 2 {
+			ctx.JSON(http.StatusBadRequest, map[string]string{"error": "Malformed request header"})
+			return
+		}
+		value := splitted[1]
+		token, err := jwt.ParseWithClaims(value, &Claims{}, parse)
         if err != nil {
             ctx.JSON(http.StatusUnauthorized, map[string]string{"error": "Unauthorized"})
             return

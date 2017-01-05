@@ -85,8 +85,10 @@ public class DefaultCodegen {
     protected String modelPackage = "", apiPackage = "", fileSuffix;
     protected String modelNamePrefix = "", modelNameSuffix = "";
     protected String testPackage = "";
+    protected String repoPackage = "";
     protected Map<String, String> apiTemplateFiles = new HashMap<String, String>();
     protected Map<String, String> modelTemplateFiles = new HashMap<String, String>();
+    protected Map<String, String> repoTemplateFiles = new HashMap<>();
     protected Map<String, String> apiTestTemplateFiles = new HashMap<String, String>();
     protected Map<String, String> modelTestTemplateFiles = new HashMap<String, String>();
     protected Map<String, String> apiDocTemplateFiles = new HashMap<String, String>();
@@ -414,6 +416,10 @@ public class DefaultCodegen {
         return apiPackage;
     }
 
+    public String repoPackage() {
+        return repoPackage;
+    }
+
     public String fileSuffix() {
         return fileSuffix;
     }
@@ -458,12 +464,20 @@ public class DefaultCodegen {
         return apiTemplateFiles;
     }
 
+    public Map<String, String> repoTemplateFiles() {
+        return repoTemplateFiles;
+    }
+
     public Map<String, String> modelTemplateFiles() {
         return modelTemplateFiles;
     }
 
     public String apiFileFolder() {
         return outputFolder + "/" + apiPackage().replace('.', '/');
+    }
+
+    public String repoFileFolder() {
+        return outputFolder + "/" + repoPackage().replace('.', '/');
     }
 
     public String modelFileFolder() {
@@ -564,6 +578,10 @@ public class DefaultCodegen {
      */
     public String toApiFilename(String name) {
         return toApiName(name);
+    }
+
+    public String toRepoFilename(String name) {
+        return toRepoName(name);
     }
 
     /**
@@ -1132,6 +1150,16 @@ public class DefaultCodegen {
     }
 
     /**
+     * Makes the string lower case
+     *
+     * @param s string to be lowered
+     * @return lowered string
+     */
+    public String toLowerCase(String s) {
+        return StringUtils.lowerCase(s);
+    }
+
+    /**
      * Output the type declaration of a given name
      *
      * @param name name
@@ -1168,6 +1196,20 @@ public class DefaultCodegen {
             return "DefaultApi";
         }
         return initialCaps(name) + "Api";
+    }
+
+    /**
+     * Output the repository name (snake-case)
+     * Return 'default' when name is empty
+     *
+     * @param name the name of repository
+     * @return snaked name
+     */
+    public String toRepoName(String name) {
+        if (name.length() == 0) {
+            return "DefaultRepository";
+        }
+        return initialCaps(name) + "Repository";
     }
 
     /**
@@ -2957,6 +2999,11 @@ public class DefaultCodegen {
     public String apiFilename(String templateName, String tag) {
         String suffix = apiTemplateFiles().get(templateName);
         return apiFileFolder() + '/' + toApiFilename(tag) + suffix;
+    }
+
+    public String repoFilename(String templateName, String tag) {
+        String suffix = repoTemplateFiles().get(templateName);
+        return repoFileFolder() + '/' + toRepoFilename(tag) + suffix;
     }
 
     /**

@@ -1,0 +1,25 @@
+package repository
+
+import (
+    "{{importPath}}/lib/context"
+)
+
+type {{classname}}Repo struct {
+    {{classname}}List []model.{{classname}}
+    datasetSize int
+}
+
+func New{{classname}}Repository() *{{classname}}Repo {
+    return &{{classname}}Repo {
+        {{classname}}List: make([]model.{{classname}}, 0),
+        datasetSize: 30,
+    }
+}
+
+{{#operations}}
+{{#operation}}
+    func (r *{{classname}}Repo) {{nickname}}() {
+
+    }
+{{/operation}}
+{{/operations}}

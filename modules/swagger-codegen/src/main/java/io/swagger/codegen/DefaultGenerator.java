@@ -441,6 +441,19 @@ public class DefaultGenerator extends AbstractGenerator implements Generator {
                         }
                     }
 
+                    for (String templateName : config.repoTemplateFiles().keySet()) {
+                        String filename = config.repoFilename(templateName, tag);
+                        if (!config.shouldOverwrite(filename) && new File(filename).exists()) {
+                            LOGGER.info("Skipped overwriting " + filename);
+                            continue;
+                        }
+
+                        File written = processTemplateToFile(operation, templateName, filename);
+                        if(written != null) {
+                            files.add(written);
+                        }
+                    }
+
                     if(generateApiTests) {
                         // to generate api test files
                         for (String templateName : config.apiTestTemplateFiles().keySet()) {
@@ -490,6 +503,7 @@ public class DefaultGenerator extends AbstractGenerator implements Generator {
         Map<String, Object> bundle = new HashMap<String, Object>();
         bundle.putAll(config.additionalProperties());
         bundle.put("apiPackage", config.apiPackage());
+        bundle.put("repoPackage", config.repoPackage());
 
         Map<String, Object> apis = new HashMap<String, Object>();
         apis.put("apis", allOperations);

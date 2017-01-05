@@ -38,6 +38,7 @@ public class MercuriusGoServerCodegen extends DefaultCodegen implements CodegenC
          * class
          */
         apiTemplateFiles.put("handler/handler.mustache", ".go");
+        repoTemplateFiles.put("repository/repository.mustache", ".go");
 
         /*
          * Template Location.  This is the location which templates will be read from.  The generator
@@ -143,9 +144,6 @@ public class MercuriusGoServerCodegen extends DefaultCodegen implements CodegenC
         supportingFiles.add(new SupportingFile("public/static", "public", "static"));
         supportingFiles.add(new SupportingFile("public/templates/jade", "public/templates", "jade"));
 
-        // repository files
-        supportingFiles.add(new SupportingFile("repository/repository", "repository", "repository"));
-
         // lib files
         supportingFiles.add(new SupportingFile("lib/auth/token.mustache", "lib/auth", "token.go"));
         supportingFiles.add(new SupportingFile("lib/auth/verifier.mustache", "lib/auth", "verifier.go"));
@@ -228,10 +226,23 @@ public class MercuriusGoServerCodegen extends DefaultCodegen implements CodegenC
     }
 
     @Override
+    public String repoFileFolder() {
+        return outputFolder + File.separator + "repository";
+    }
+
+    @Override
     public String toModelName(String name) {
         // camelize the model name
         // phone_number => PhoneNumber
         return camelize(toModelFilename(name));
+    }
+
+    @Override
+    public String toRepoName(String name) {
+        if (name.length() == 0) {
+            return "default";
+        }
+        return snakeCase(name);
     }
 
     @Override
@@ -276,6 +287,15 @@ public class MercuriusGoServerCodegen extends DefaultCodegen implements CodegenC
     }
 
     @Override
+    public String toRepoFilename(String name) {
+        // replace - with _ e.g. created-at => created_at
+        name = name.replaceAll("-", "_");
+
+        // e.g. PetApi.go => pet_api.go
+        return underscore(name);
+    }
+
+    @Override
     public String escapeQuotationMark(String input) {
         // remove " to avoid code injection
         return input.replace("\"", "");
@@ -294,7 +314,8 @@ public class MercuriusGoServerCodegen extends DefaultCodegen implements CodegenC
     @Override
     public void processSwagger(Swagger swagger) {
         // rewrite handlers file
-        rewriteHandlersFile(swagger);
+        rewriteFiles(swagger, "handler");
+        rewriteFiles(swagger, "repository");
         rewriteRoutes();
         super.processSwagger(swagger);
     }
@@ -326,19 +347,36 @@ public class MercuriusGoServerCodegen extends DefaultCodegen implements CodegenC
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            try {
-                if (br != null)br.close();
-                if (bw != null)bw.close();
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
+            closeBuffRW(bw, br);
         }
     }
 
-    private void rewriteHandlersFile(Swagger swagger) {
+    private void closeBuffRW(BufferedWriter bw, BufferedReader br) {
+        try {
+            if (br != null)br.close();
+            if (bw != null)bw.close();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    private void rewriteFiles(Swagger swagger, String folder) {
         String url = swagger.getExternalDocs().getUrl();
         url = url + "/lib/context";
-        File dir = new File(outputFolder + "/handler");
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("/");
+        sb.append(folder);
+
+        folder = sb.toString();
+
+        File dir = new File(outputFolder + folder);
+
+        if (dir.listFiles() == null) {
+            LOGGER.debug("No files to rewrite");
+            return;
+        }
+
         for (File handler : dir.listFiles()) {
             BufferedReader br = null;
             BufferedWriter bw = null;
@@ -347,7 +385,7 @@ public class MercuriusGoServerCodegen extends DefaultCodegen implements CodegenC
                 String sCurrentLine;
 
                 br = new BufferedReader(new FileReader(handler));
-                File file = new File(outputFolder + "/handler/" + handler.getName() + ".generated");
+                File file = new File(outputFolder + folder + "/" + handler.getName() + ".generated");
                 bw = new BufferedWriter(new FileWriter(file));
                 boolean changeTime = false;
                 while ((sCurrentLine = br.readLine()) != null) {
@@ -366,12 +404,7 @@ public class MercuriusGoServerCodegen extends DefaultCodegen implements CodegenC
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {
-                try {
-                    if (br != null)br.close();
-                    if (bw != null)bw.close();
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
+                closeBuffRW(bw, br);
             }
         }
     }
